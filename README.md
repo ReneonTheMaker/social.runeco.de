@@ -1,3 +1,6 @@
-# golang-app-template
-Template for golang web apps with tailwind and htmx.
-This allows for speed and flexibility; all in a lightweight package.
+# social.runeco.de
+Minimalist web app. Minimalist social media.
+## Tasks
+- [ ] Model
+- [ ] View
+- [ ] Permanency
