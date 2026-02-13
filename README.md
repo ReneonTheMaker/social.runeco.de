@@ -1,6 +1,6 @@
 # social.runeco.de
 Minimalist web app. Minimalist social media.
 ## Tasks
-- [ ] Model
+- [X] Model
 - [ ] View
-- [ ] Permanency
+- [X] Permanency
