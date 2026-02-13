@@ -5,5 +5,5 @@ type WebConfig struct {
 }
 
 type Config struct {
-	Web WebConfig 			`ini:"web"`
+	Web WebConfig `ini:"web"`
 }
