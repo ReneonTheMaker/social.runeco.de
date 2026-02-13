@@ -6,4 +6,5 @@ import (
 
 func RegisterRoutes(app *fiber.App) {
 	app.Get("/", GetMain())
+	app.Get("/auth", GetAuth())
 }

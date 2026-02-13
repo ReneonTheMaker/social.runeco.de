@@ -12,3 +12,10 @@ func GetMain() fiber.Handler {
 		return c.Render("index", nil)
 	}
 }
+
+func GetAuth() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		c.Set("Content-Type", "text/html")
+		return c.Render("auth", nil)
+	}
+}
