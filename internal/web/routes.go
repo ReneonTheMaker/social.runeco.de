@@ -1,10 +1,13 @@
 package web
 
 import (
+	"app/internal/store"
+
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterRoutes(app *fiber.App) {
+func RegisterRoutes(app *fiber.App, store *store.Store) {
 	app.Get("/", GetMain())
 	app.Get("/auth", GetAuth())
+	app.Post("/auth", PostAuth(store))
 }

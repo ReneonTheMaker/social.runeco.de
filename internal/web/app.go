@@ -33,6 +33,9 @@ func NewApp() *App {
 	// Static files
 	app.Static("/static", "./static")
 
+	// Favicon
+	app.Static("/favicon.ico", "./static/favicon.ico")
+
 	// Middleware
 	app.Use(logger.New())
 	app.Use(cors.New())
@@ -51,11 +54,14 @@ func NewApp() *App {
 	// Middleware to set ID cookie
 	RegisterMiddleware(app)
 
+	// Store
+	storeInstance := store.NewStore(database)
+
 	// Register Routes - defined in routes.go
-	RegisterRoutes(app)
+	RegisterRoutes(app, storeInstance)
 
 	return &App{
 		FiberApp: app,
-		Store:    store.NewStore(database),
+		Store:    storeInstance,
 	}
 }
