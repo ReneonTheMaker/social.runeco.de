@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+<body>
+  <!-- tailwind css -->
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-4">Lovick Template</h1>
+    <p>This is the main content of the home page.</p>
+    <p>Hits: {{template "hits" .}}</p>
+    <a href="/ip" class="text-blue-500 hover:underline">Check your IP address</a>
+  </div>
+</body>
+</html>

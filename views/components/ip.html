@@ -1,0 +1,5 @@
+{{define "ip"}}
+<span hx-get="/userinfo/ip" hx-trigger="load" hx-target="this" hx-swap="innerHTML">
+  <span class="italic text-gray-300">Finding IP address...</span>
+</span>
+{{end}}
