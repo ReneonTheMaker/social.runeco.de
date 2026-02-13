@@ -3,11 +3,15 @@
 {{template "head" .}}
 <body>
   <!-- tailwind css -->
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-4">Lovick Template</h1>
-    <p>This is the main content of the home page.</p>
-    <p>Hits: {{template "hits" .}}</p>
-    <a href="/ip" class="text-blue-500 hover:underline">Check your IP address</a>
+  {{template "topbar" .}}
+  <div class="px-4 w-screen h-screen grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+    <div class="text-left h-full flex flex-col justify-center items-begin px-4">
+      <h2 class="font-sans text-8xl font-semibold leading-[0.95] mb-4">Uncomplicated. Unfiltered. Just your words.</h2>
+      <p class="font-sans text-3xl">A minimalist social network. See what <span class="underline underline-offset-2 font-semibold leading-tight text-purple-800">everyone</span> is saying.</p>
+    </div>
+    <div class="hidden lg:block h-full flex flex-row justify-self-end items-center overflow-hidden">
+      <img src="/static/img/splash.webp" alt="splash image" class="h-auto max-h-screen object-cover rounded-lg">
+    </div>
   </div>
 </body>
 </html>
