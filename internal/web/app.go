@@ -1,6 +1,8 @@
 package web
 
 import (
+	"app/internal/db"
+	"app/internal/model"
 	"app/internal/store"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,8 +12,8 @@ import (
 )
 
 type App struct {
-	FiberApp    *fiber.App
-	HitStore    *store.HitsStore
+	FiberApp *fiber.App
+	Store    *store.Store
 }
 
 func NewApp() *App {
@@ -35,17 +37,25 @@ func NewApp() *App {
 	app.Use(logger.New())
 	app.Use(cors.New())
 
-	// Create the hits store
-	hitStore := store.NewHitsStore()
+	// Initialize Store
+	database := db.New("app.db")
+	err := database.AutoMigrate(
+		&model.User{},
+		&model.UserInfo{},
+		&model.Post{},
+	)
+	if err != nil {
+		panic(err)
+	}
 
 	// Middleware to set ID cookie
 	RegisterMiddleware(app)
 
 	// Register Routes - defined in routes.go
-	RegisterRoutes(app, hitStore)
-	
+	RegisterRoutes(app)
+
 	return &App{
 		FiberApp: app,
-		HitStore: hitStore,
+		Store:    store.NewStore(database),
 	}
 }
