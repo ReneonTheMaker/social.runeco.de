@@ -16,7 +16,8 @@ posts
 */
 
 type Post struct {
-	ID        uint   `gorm:"primaryKey"`
+	ID        uint `gorm:"primaryKey"`
+	Author    string
 	UserID    uint   `gorm:"not null;index"`
 	User      User   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 	ParentID  *uint  `gorm:"index"`

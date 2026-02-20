@@ -36,7 +36,7 @@ func PostAuth(store *store.Store) fiber.Handler {
 		}
 
 		user, err := store.AuthenticateUser(username, password)
-		if err.Error() == "record not found" {
+		if err != nil && err.Error() == "record not found" {
 			newUser := model.User{
 				Username:     username,
 				PasswordHash: password, // In production, hash the password before storing
@@ -61,6 +61,40 @@ func PostAuth(store *store.Store) fiber.Handler {
 			SameSite: "Lax",
 		})
 
+		c.Set("HX-Redirect", "/feed")
+		return c.SendStatus(fiber.StatusOK)
+	}
+}
+
+func GetFeed() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		c.Set("Content-Type", "text/html")
+
+		posts := []model.Post{
+			{ID: 1, Content: "Hello, world!"},
+			{ID: 2, Content: "Welcome to the feed!"},
+		}
+		return c.Render("feed", fiber.Map{
+			"Posts": posts,
+		})
+	}
+}
+
+func PostDeletePost(store *store.Store) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// post id from url param
+		postID, err := strconv.Atoi(c.Params("id"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).Render("feed", fiber.Map{
+				"Error": "Invalid post ID",
+			})
+		}
+		err = store.DeletePost(uint(postID))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).Render("feed", fiber.Map{
+				"Error": "Internal server error",
+			})
+		}
 		c.Set("HX-Redirect", "/feed")
 		return c.SendStatus(fiber.StatusOK)
 	}

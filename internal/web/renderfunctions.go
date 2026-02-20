@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/template/html/v2"
+	"gopkg.in/loremipsum.v1"
 )
 
 func defaultValue(v any, d any) any {
@@ -43,6 +44,11 @@ func printstatus(status int) string {
 	}
 }
 
+func lorem() string {
+	l := loremipsum.New()
+	return l.Paragraph()
+}
+
 func registerRenderFunctions(engine *html.Engine) {
 	// Register custom template functions
 	engine.AddFunc("default", defaultValue)
@@ -50,4 +56,5 @@ func registerRenderFunctions(engine *html.Engine) {
 	engine.AddFunc("printf", printf)
 	engine.AddFunc("printtime", printtime)
 	engine.AddFunc("printstatus", printstatus)
+	engine.AddFunc("lorem", lorem)
 }
