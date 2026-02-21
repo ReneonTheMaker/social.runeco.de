@@ -221,3 +221,15 @@ func PostCreatePost(store *store.Store) fiber.Handler {
 		})
 	}
 }
+
+func GetLogout(store *store.Store) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		sessionId := c.Cookies("session")
+		if sessionId != "" {
+			store.EndSession(sessionId)
+			ClearCookie(c, "session")
+			return c.Redirect("/", fiber.StatusSeeOther)
+		}
+		return c.Redirect("/", fiber.StatusSeeOther)
+	}
+}

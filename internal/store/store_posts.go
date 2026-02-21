@@ -49,3 +49,16 @@ func (s *Store) CreatePost(userID uint, content string) (model.Post, error) {
 	}
 	return post, s.DB.Create(&post).Error
 }
+
+func (s *Store) EndSession(sessionId string) error {
+	return s.DB.Where("session_id = ?", sessionId).Delete(&model.UserLogin{}).Error
+}
+
+func (s *Store) IsUserModerator(userID uint) (bool, error) {
+	var user model.User
+	err := s.DB.First(&user, userID).Error
+	if err != nil {
+		return false, err
+	}
+	return user.Mod, nil
+}
