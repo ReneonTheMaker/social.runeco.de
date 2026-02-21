@@ -60,12 +60,6 @@ func (s *Store) DeleteUser(userID uint) error {
 	return s.DB.Delete(&model.User{}, userID).Error
 }
 
-// post crud
-
-func (s *Store) CreatePost(post *model.Post) error {
-	return s.DB.Create(post).Error
-}
-
 func (s *Store) GetPostByID(postID uint) (*model.Post, error) {
 	var post model.Post
 	err := s.DB.Preload("User").Preload("Parent").Where("id = ?", postID).First(&post).Error

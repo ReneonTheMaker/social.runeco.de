@@ -17,4 +17,5 @@ func RegisterRoutes(app *fiber.App, store *store.Store) {
 	app.Get("/post/:id", GetPost(store))
 	app.Post("/post/:id/delete", PostDeletePost(store))
 	app.Post("/post/:id/reply", PostReply(store))
+	app.Post("/post/create", PostCreatePost(store))
 }

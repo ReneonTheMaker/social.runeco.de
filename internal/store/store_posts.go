@@ -39,3 +39,13 @@ func (s *Store) CreateReply(userID uint, parentID uint, content string) (model.P
 	}
 	return reply, s.DB.Create(&reply).Error
 }
+
+func (s *Store) CreatePost(userID uint, content string) (model.Post, error) {
+	user, _ := s.GetUserByID(userID)
+	post := model.Post{
+		UserID:  userID,
+		User:    *user,
+		Content: content,
+	}
+	return post, s.DB.Create(&post).Error
+}

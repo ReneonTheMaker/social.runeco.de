@@ -5,6 +5,7 @@
     {{template "topbar" (dict "Bg" "true" "Authenticated" .Authenticated)}}
     <div id="posts" class="w-screen min-h-screen flex flex-col items-center mt-30 gap-6">
       <div class="container">
+      <span id="post-target"></span>
       {{range .Posts}}
       {{template "post" .}}
       {{else}}
@@ -20,8 +21,20 @@
 
 {{define "new-post"}}
 <div class="fixed bottom-4 right-4">
-  <button id="new-post-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-xl cursor-pointer">
+  <button id="new-post-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-xl cursor-pointer" onclick="document.getElementById('new-post-modal').classList.remove('hidden')">
     New Post
   </button>
+</div>
+<!-- hidden modal -->
+<div id="new-post-modal" class="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center hidden z-50" onclick="if (event.target === this) { this.classList.add('hidden') }">
+  <div class="bg-white rounded-lg p-6 w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-4">Create New Post</h2>
+    <form id="new-post-form" class="flex flex-col gap-4" hx-post="/post/create" hx-target="#post-target" hx-swap="afterbegin" hx-on::after-request="document.getElementById('new-post-modal').classList.add('hidden'); this.reset();">
+      <textarea name="content" class="w-full h-32 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="What's on your mind?"></textarea>
+      <button type="submit" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">
+        Post
+      </button>
+    </form>
+  </div>
 </div>
 {{end}}

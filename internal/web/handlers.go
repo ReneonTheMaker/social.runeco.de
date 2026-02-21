@@ -185,3 +185,39 @@ func PostReply(store *store.Store) fiber.Handler {
 		})
 	}
 }
+
+func PostCreatePost(store *store.Store) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		CheckAuth(c, store)
+
+		content := c.FormValue("content")
+
+		if content == "" {
+			return c.Status(fiber.StatusBadRequest).Render("feed", fiber.Map{
+				"Error": "Content cannot be empty",
+			})
+		}
+
+		id, err := store.GetUserIDFromSession(c.Cookies("session"))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).Render("feed", fiber.Map{
+				"Error": "Internal server error",
+			})
+		}
+
+		post, err := store.CreatePost(id, content)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).Render("feed", fiber.Map{
+				"Error": "Internal server error",
+			})
+		}
+
+		c.Set("content-type", "text/html")
+		return c.Render("post", fiber.Map{
+			"User":      post.User,
+			"CreatedAt": post.CreatedAt,
+			"Content":   post.Content,
+			"ID":        post.ID,
+		})
+	}
+}
