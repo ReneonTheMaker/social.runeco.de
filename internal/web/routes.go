@@ -10,6 +10,6 @@ func RegisterRoutes(app *fiber.App, store *store.Store) {
 	app.Get("/", GetMain())
 	app.Get("/auth", GetAuth())
 	app.Post("/auth", PostAuth(store))
-	app.Get("/feed", GetFeed())
+	app.Get("/feed", GetFeed(store))
 	app.Post("/post/:id/delete", PostDeletePost(store))
 }

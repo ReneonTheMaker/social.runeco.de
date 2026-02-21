@@ -31,6 +31,15 @@ func (s *Store) GetUserByUsername(username string) (*model.User, error) {
 	return &user, nil
 }
 
+func (s *Store) GetUserByID(userID uint) (*model.User, error) {
+	var user model.User
+	err := s.DB.Preload("UserInfo").Where("id = ?", userID).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func (s *Store) UpdateUserInfo(userInfo *model.UserInfo) error {
 	return s.DB.Save(userInfo).Error
 }
