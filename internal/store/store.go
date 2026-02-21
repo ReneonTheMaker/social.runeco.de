@@ -79,7 +79,6 @@ func (s *Store) DeletePost(postID uint) error {
 	return s.DB.Delete(&model.Post{}, postID).Error
 }
 
-// auth
 func (s *Store) AuthenticateUser(username, passwordHash string) (*model.User, error) {
 	var user model.User
 	err := s.DB.Where("username = ? AND password_hash = ?", username, passwordHash).First(&user).Error
