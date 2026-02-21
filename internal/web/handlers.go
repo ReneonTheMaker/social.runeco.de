@@ -3,6 +3,7 @@ package web
 import (
 	"log"
 	"strconv"
+	"time"
 
 	"app/internal/model"
 	"app/internal/store"
@@ -19,8 +20,14 @@ func GetMain() fiber.Handler {
 	}
 }
 
-func GetAuth() fiber.Handler {
+func GetAuth(store *store.Store) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		if c.Cookies("session") != "" {
+			sessionId := c.Cookies("session")
+			if Auth(sessionId, store) {
+				return c.Redirect("/feed", fiber.StatusSeeOther)
+			}
+		}
 		c.Set("Content-Type", "text/html")
 		return c.Render("auth", nil)
 	}
@@ -31,46 +38,22 @@ func PostAuth(store *store.Store) fiber.Handler {
 		username := c.FormValue("username")
 		password := c.FormValue("password")
 
-		user, err := store.GetUserByUsername(username)
-		if err != nil {
-			log.Printf("Error fetching user: %v", err)
-		}
-		if user == nil {
-			// create user
-			passwordHash, err := HashString(password)
-			if err != nil {
-				log.Printf("Error hashing password: %v", err)
-				return c.Status(fiber.StatusInternalServerError).Render("auth", fiber.Map{
-					"Error": "Internal server error",
-				})
-			}
-			user = &model.User{
-				Username:     username,
-				PasswordHash: passwordHash,
-			}
-			err = store.CreateUser(user)
-			if err != nil {
-				log.Printf("Error creating user: %v", err)
-				return c.Status(fiber.StatusInternalServerError).Render("auth", fiber.Map{
-					"Error": "Internal server error",
-				})
-			}
-		} else {
-			// check password
-			match, err := CheckPasswordHash(*user, password)
-			if err != nil || !match {
-				return c.Status(fiber.StatusUnauthorized).Render("auth", fiber.Map{
-					"Error": "Invalid username or password",
-				})
-			}
+		if username == "" || password == "" {
+			return c.Status(fiber.StatusBadRequest).Render("auth", fiber.Map{
+				"Error": "Username and password are required",
+			})
 		}
 
-		c.Cookie(&fiber.Cookie{
-			Name:     "user_id",
-			Value:    strconv.Itoa(int(user.ID)),
-			HTTPOnly: true,
-			SameSite: "Lax",
-		})
+		user, err := LoginOrSignUp(username, password, store)
+		if err != nil {
+			log.Printf("Error during login/signup: %v", err)
+			return c.Status(fiber.StatusInternalServerError).Render("auth", fiber.Map{
+				"Error": "Internal server error",
+			})
+		}
+
+		sessionId := store.SetUserSession(user.ID)
+		SetCookie(c, "session", sessionId, 24*time.Hour)
 
 		c.Set("HX-Redirect", "/feed")
 		return c.SendStatus(fiber.StatusOK)
@@ -82,15 +65,12 @@ func GetFeed(store *store.Store) fiber.Handler {
 		c.Set("Content-Type", "text/html")
 
 		// Check if user_id cookie is present and valid
-		if c.Cookies("user_id") == "" {
+		if c.Cookies("session") == "" {
 			return c.Redirect("/auth", fiber.StatusSeeOther)
 		} else {
-			id := c.Cookies("user_id")
-			uId, err := strconv.Atoi(id)
-			if err != nil {
-				return c.Redirect("/auth", fiber.StatusSeeOther)
-			}
-			if !Auth(uint(uId), store) {
+			sessionId := c.Cookies("session")
+			if !Auth(sessionId, store) {
+				ClearCookie(c, "session")
 				return c.Redirect("/auth", fiber.StatusSeeOther)
 			}
 		}

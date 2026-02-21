@@ -17,7 +17,6 @@ type App struct {
 }
 
 func NewApp() *App {
-
 	// Template Engine golang html/template
 	engine := html.New("./views", ".html")
 
@@ -46,6 +45,7 @@ func NewApp() *App {
 		&model.User{},
 		&model.UserInfo{},
 		&model.Post{},
+		&model.UserLogin{},
 	)
 	if err != nil {
 		panic(err)

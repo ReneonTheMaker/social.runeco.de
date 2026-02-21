@@ -2,14 +2,6 @@ package model
 
 import "time"
 
-/*
-users
-- id (PK)
-- username (unique, indexed)
-- password_hash
-- created_at
-*/
-
 type User struct {
 	ID           uint     `gorm:"primaryKey"`
 	Username     string   `gorm:"uniqueIndex;size:32;not null"`

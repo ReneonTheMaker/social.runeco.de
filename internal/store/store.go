@@ -3,8 +3,11 @@ package store
 // sqlite gorm db for users and user info and posts
 
 import (
+	"time"
+
 	"app/internal/model"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -80,6 +83,36 @@ func (s *Store) DeletePost(postID uint) error {
 func (s *Store) AuthenticateUser(username, passwordHash string) (*model.User, error) {
 	var user model.User
 	err := s.DB.Where("username = ? AND password_hash = ?", username, passwordHash).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (s *Store) SetUserSession(loginID uint) string {
+	sessionId := uuid.New().String()
+	userLogin := &model.UserLogin{
+		UserID:    loginID,
+		TokenHash: sessionId,
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+	}
+	s.DB.Create(userLogin)
+	return sessionId
+}
+
+func (s *Store) GetUserBySession(sessionId string) (*model.User, error) {
+	var userLogin model.UserLogin
+	err := s.DB.Where("token_hash = ?", sessionId).First(&userLogin).Error
+	if err != nil {
+		return nil, err
+	}
+	if userLogin.ExpiresAt.Before(time.Now()) {
+		s.DB.Delete(&userLogin)
+		return nil, nil
+	}
+	s.DB.Model(&userLogin).Update("last_seen_at", time.Now())
+	var user model.User
+	err = s.DB.Where("id = ?", userLogin.UserID).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
