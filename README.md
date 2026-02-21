@@ -6,4 +6,4 @@ Minimalist web app. Minimalist social media.
 - [X] Permanency
 
 ## Task of the day
-- [ ] Kick user out of the feed if failed auth check
+- [X] Kick user out of the feed if failed auth check
