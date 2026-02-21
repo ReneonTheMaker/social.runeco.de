@@ -4,9 +4,38 @@ import "app/internal/model"
 
 func (s *Store) GetTopPosts(limit int) ([]model.Post, error) {
 	var posts []model.Post
-	err := s.DB.Preload("User").Preload("Parent").Order("created_at desc").Limit(limit).Find(&posts).Error
+	err := s.DB.Preload("User").Preload("Parent").Where("parent_id is null").Order("created_at desc").Limit(limit).Find(&posts).Error
 	if err != nil {
 		return nil, err
 	}
 	return posts, nil
+}
+
+func (s *Store) GetReplyPosts(parentID uint) ([]model.Post, error) {
+	var posts []model.Post
+	err := s.DB.Preload("User").Preload("Parent").Where("parent_id = ?", parentID).Order("created_at asc").Find(&posts).Error
+	if err != nil {
+		return nil, err
+	}
+	return posts, nil
+}
+
+func (s *Store) GetNumberOfReplies(postID uint) (int64, error) {
+	var count int64
+	err := s.DB.Model(&model.Post{}).Where("parent_id = ?", postID).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (s *Store) CreateReply(userID uint, parentID uint, content string) (model.Post, error) {
+	user, _ := s.GetUserByID(userID)
+	reply := model.Post{
+		UserID:   userID,
+		User:     *user,
+		ParentID: &parentID,
+		Content:  content,
+	}
+	return reply, s.DB.Create(&reply).Error
 }

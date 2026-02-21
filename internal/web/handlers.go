@@ -1,11 +1,11 @@
 package web
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"time"
 
-	"app/internal/model"
 	"app/internal/store"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,6 +16,11 @@ func GetMain() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		c.Set("Content-Type", "text/html")
 		// get number of hits from the store
+		if c.Cookies("session") != "" {
+			return c.Render("index", fiber.Map{
+				"Authenticated": true,
+			})
+		}
 		return c.Render("index", nil)
 	}
 }
@@ -64,24 +69,19 @@ func GetFeed(store *store.Store) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		c.Set("Content-Type", "text/html")
 
-		// Check if user_id cookie is present and valid
-		if c.Cookies("session") == "" {
-			return c.Redirect("/auth", fiber.StatusSeeOther)
-		} else {
-			sessionId := c.Cookies("session")
-			if !Auth(sessionId, store) {
-				ClearCookie(c, "session")
-				return c.Redirect("/auth", fiber.StatusSeeOther)
-			}
+		CheckAuth(c, store)
+
+		posts, err := store.GetTopPosts(10)
+		if err != nil {
+			log.Printf("Error fetching posts: %v", err)
+			return c.Status(fiber.StatusInternalServerError).Render("feed", fiber.Map{
+				"Error": "Internal server error",
+			})
 		}
 
-		posts := []model.Post{
-			{ID: 1, Content: "Hello, world!"},
-			{ID: 2, Content: "Welcome to the feed!"},
-			{ID: 3},
-		}
 		return c.Render("feed", fiber.Map{
-			"Posts": posts,
+			"Authenticated": true,
+			"Posts":         posts,
 		})
 	}
 }
@@ -103,5 +103,85 @@ func PostDeletePost(store *store.Store) fiber.Handler {
 		}
 		c.Set("HX-Redirect", "/feed")
 		return c.SendStatus(fiber.StatusOK)
+	}
+}
+
+func GetPostNumberOfReplies(store *store.Store) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		postID, err := strconv.Atoi(c.Params("id"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid post ID",
+			})
+		}
+		count, err := store.GetNumberOfReplies(uint(postID))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Internal server error",
+			})
+		}
+		c.Set("Content-Type", "text/html")
+		return c.SendString(fmt.Sprintf("Replies: %d", count))
+	}
+}
+
+func GetPost(store *store.Store) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		CheckAuth(c, store)
+
+		postID, err := strconv.Atoi(c.Params("id"))
+		if err != nil {
+			return c.Render("post_page", fiber.Map{})
+		}
+		post, err := store.GetPostByID(uint(postID))
+		if err != nil {
+			return c.Render("post_page", fiber.Map{})
+		}
+		replies, err := store.GetReplyPosts(uint(postID))
+		if err != nil {
+			return c.Render("post_page", fiber.Map{})
+		}
+
+		return c.Render("post_page", fiber.Map{
+			"Post":          post,
+			"Authenticated": true,
+			"Replies":       replies,
+		})
+	}
+}
+
+func PostReply(store *store.Store) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		CheckAuth(c, store)
+
+		postID, err := strconv.Atoi(c.Params("id"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).Render("post_page", fiber.Map{
+				"Error": "Invalid post ID",
+			})
+		}
+		content := c.FormValue("content")
+		if content == "" {
+			return c.Status(fiber.StatusBadRequest).Render("post_page", fiber.Map{
+				"Error": "Content cannot be empty",
+			})
+		}
+		id, err := store.GetUserIDFromSession(c.Cookies("session"))
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).Render("post_page", fiber.Map{
+				"Error": "Internal server error",
+			})
+		}
+		reply, err := store.CreateReply(id, uint(postID), content)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).Render("post_page", fiber.Map{
+				"Error": "Internal server error",
+			})
+		}
+		return c.Render("post-reply", fiber.Map{
+			"User":      reply.User,
+			"CreatedAt": reply.CreatedAt,
+			"Content":   reply.Content,
+		})
 	}
 }

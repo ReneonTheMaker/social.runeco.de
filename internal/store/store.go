@@ -117,3 +117,22 @@ func (s *Store) GetUserBySession(sessionId string) (*model.User, error) {
 	}
 	return &user, nil
 }
+
+func (s *Store) GetUserIDFromSession(sessionId string) (uint, error) {
+	var userLogin model.UserLogin
+	err := s.DB.Where("token_hash = ?", sessionId).First(&userLogin).Error
+	if err != nil {
+		return 0, err
+	}
+	if userLogin.ExpiresAt.Before(time.Now()) {
+		s.DB.Delete(&userLogin)
+		return 0, nil
+	}
+	s.DB.Model(&userLogin).Update("last_seen_at", time.Now())
+	var user model.User
+	err = s.DB.Where("id = ?", userLogin.UserID).First(&user).Error
+	if err != nil {
+		return 0, err
+	}
+	return user.ID, nil
+}

@@ -1,8 +1,9 @@
 package model
 
 import (
-	gorm "gorm.io/gorm"
 	"time"
+
+	gorm "gorm.io/gorm"
 )
 
 /*
@@ -16,8 +17,7 @@ posts
 */
 
 type Post struct {
-	ID        uint `gorm:"primaryKey"`
-	Author    string
+	ID        uint   `gorm:"primaryKey"`
 	UserID    uint   `gorm:"not null;index"`
 	User      User   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 	ParentID  *uint  `gorm:"index"`

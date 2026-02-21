@@ -2,8 +2,9 @@
 <html lang="en">
   {{template "head" .}}
   <body>
-    {{template "topbar" (dict "Bg" "true")}}
-    <div id="posts" class="min-h-screen h-screen w-screen 2xl:px-128 xl:px-64 pt-30 flex flex-col items-center px-4 gap-3">
+    {{template "topbar" (dict "Bg" "true" "Authenticated" .Authenticated)}}
+    <div id="posts" class="w-screen min-h-screen flex flex-col items-center mt-30 gap-6">
+      <div class="container">
       {{range .Posts}}
       {{template "post" .}}
       {{else}}
@@ -13,6 +14,7 @@
       {{end}}
     </div>
     {{template "new-post" .}}
+    </div>
   </body>
 </html>
 
