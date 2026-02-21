@@ -36,6 +36,7 @@ node_modules/
 app.db
 
 tmp/
+dist/
 
 
 # Generated Tailwind CSS file
