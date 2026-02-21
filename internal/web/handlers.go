@@ -79,6 +79,15 @@ func GetFeed(store *store.Store) fiber.Handler {
 			})
 		}
 
+		for i := range posts {
+			user, err := store.GetUserFromSession(c.Cookies("session"))
+			if err != nil {
+				log.Printf("Error getting user ID from session: %v", err)
+				continue
+			}
+			posts[i].Deleteable = posts[i].UserID == user.ID || user.Mod
+		}
+
 		return c.Render("feed", fiber.Map{
 			"Authenticated": true,
 			"Posts":         posts,
