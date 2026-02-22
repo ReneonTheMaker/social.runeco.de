@@ -280,6 +280,7 @@ func DeletePost(store *store.Store) fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
+		// return empty response with 200 status code for htmx to remove the post element from the page
 		return c.Status(fiber.StatusOK).SendString("")
 	}
 }
