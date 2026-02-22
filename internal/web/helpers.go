@@ -43,3 +43,15 @@ func CheckAuth(c *fiber.Ctx, store *store.Store) error {
 	}
 	return nil
 }
+
+// required gdpr compliance cookie
+func CheckCompliance(c *fiber.Ctx) bool {
+	if c.Cookies("compliance") == "" {
+		return false
+	}
+	return true
+}
+
+func SetComplianceCookie(c *fiber.Ctx) {
+	SetCookie(c, "compliance", "true", 365*24*time.Hour)
+}

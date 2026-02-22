@@ -223,10 +223,11 @@ func PostCreatePost(store *store.Store) fiber.Handler {
 
 		c.Set("content-type", "text/html")
 		return c.Render("post", fiber.Map{
-			"User":      post.User,
-			"CreatedAt": post.CreatedAt,
-			"Content":   post.Content,
-			"ID":        post.ID,
+			"User":       post.User,
+			"CreatedAt":  post.CreatedAt,
+			"Content":    post.Content,
+			"ID":         post.ID,
+			"Deleteable": true,
 		})
 	}
 }
@@ -240,5 +241,41 @@ func GetLogout(store *store.Store) fiber.Handler {
 			return c.Redirect("/", fiber.StatusSeeOther)
 		}
 		return c.Redirect("/", fiber.StatusSeeOther)
+	}
+}
+
+func DeletePost(store *store.Store) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		CheckAuth(c, store)
+
+		if c.Params("id") == "" {
+			return c.SendStatus(fiber.StatusBadRequest)
+		}
+
+		postID, err := strconv.Atoi(c.Params("id"))
+		if err != nil {
+			return c.SendStatus(fiber.StatusBadRequest)
+		}
+
+		id, err := store.GetUserIDFromSession(c.Cookies("session"))
+		if err != nil {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		canDelete, err := store.CanDeletePost(id, uint(postID))
+		if err != nil {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		if !canDelete {
+			return c.SendStatus(fiber.StatusForbidden)
+		}
+
+		err = store.DeletePost(uint(postID))
+		if err != nil {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		return c.Status(fiber.StatusOK).Render("post-deleted", nil)
 	}
 }

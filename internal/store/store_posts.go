@@ -62,3 +62,19 @@ func (s *Store) IsUserModerator(userID uint) (bool, error) {
 	}
 	return user.Mod, nil
 }
+
+func (s *Store) CanDeletePost(userID uint, postID uint) (bool, error) {
+	var post model.Post
+	err := s.DB.First(&post, postID).Error
+	if err != nil {
+		return false, err
+	}
+	if post.UserID == userID {
+		return true, nil
+	}
+	return s.IsUserModerator(userID)
+}
+
+func (s *Store) DeletePost(postID uint) error {
+	return s.DB.Delete(&model.Post{}, postID).Error
+}

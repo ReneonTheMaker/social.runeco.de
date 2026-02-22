@@ -1,10 +1,10 @@
 {{define "post" }}
-<div class="hover:bg-gray-50 bg-transparent transition transition-colors duration-200 ease-in-out w-full rounded rounded-lg flex flex-row-reverse p-4 gap-4 post">
-  <div class="w-auto h-10 rounded rounded-lg flex items-center justify-center text-gray-500 font-bold cursor-pointer px-3">
-    {{if .Deleteable}}
-    <img src="/static/img/trash-can.svg" alt="Delete post" class="w-full h-full object-cover" hx-post="/posts/{{.ID}}/delete" hx-confirm="Are you sure you want to delete this post?" hx-target="closest .post" hx-swap="outerHTML">
-    {{end}}
+<div id="post-{{.ID}}" class="hover:bg-gray-50 bg-transparent transition transition-colors duration-200 ease-in-out w-full rounded rounded-lg flex flex-row-reverse p-4 gap-4 post">
+  {{if .Deleteable}}
+  <div class="w-auto h-10 rounded rounded-lg flex items-center justify-center text-gray-500 font-bold cursor-pointer px-3" hx-trigger="click" hx-delete="/post/{{.ID}}" hx-confirm="Are you sure you want to delete this post?" hx-target="#post-{{.ID}}" hx-swap="outerHTML">
+    <img src="/static/img/trash-can.svg" alt="Delete post" class="w-full h-full object-cover">
   </div>
+  {{end}}
   <div class="p-4 w-full">
     <a href="/post/{{.ID}}">
       <div class="flex items-center gap-3 mb-2">
@@ -35,19 +35,19 @@
       <span class="text-gray-800 italic">{{ (lorem) }}</span>
       {{end}}
       </p>
+      <hr class="w-full border-gray-200 mt-4 mb-4" >
   </div>
     </a>
 </div>
 
-<hr class="w-full border-gray-200 mt-4 mb-4">
 {{end}}
 {{define "post-no-link"}}
-<div class="bg-transparentease-in-out w-full rounded rounded-lg flex flex-row-reverse p-4 gap-4 post">
+<div id="post-{{.ID}}" class="bg-transparentease-in-out w-full rounded rounded-lg flex flex-row-reverse p-4 gap-4 post">
+  {{if .Deleteable}}
   <div class="w-auto h-10 rounded rounded-lg flex items-center justify-center text-gray-500 font-bold cursor-pointer px-3">
-    {{if .Deleteable}}
-    <img src="/static/img/trash-can.svg" alt="Delete post" class="w-full h-full object-cover" hx-post="/posts/{{.ID}}/delete" hx-confirm="Are you sure you want to delete this post?" hx-target="closest .post" hx-swap="outerHTML">
-    {{end}}
+    <img src="/static/img/trash-can.svg" alt="Delete post" class="w-full h-full object-cover" hx-delete="/posts/{{.ID}}/delete" hx-confirm="Are you sure you want to delete this post?" hx-target="#post-{{.ID}}" hx-swap="outerHTML">
   </div>
+  {{end}}
   <div class="p-4 w-full">
     <div class="flex items-center gap-3 mb-2">
       <div>
@@ -57,9 +57,6 @@
         {{else}}
         <span class="text-gray-500 italic">Unknown user</span>
         {{end}}
-        </p>
-        <p class="text-gray-500 text-sm mt-4" hx-get="/post/{{.ID}}/reply-count" hx-trigger="load" hx-target="#replies-count-{{.ID}}" hx-swap="innerHTML">
-        <span id="replies-count-{{.ID}}">Loading replies...</span>
         </p>
         <p class="text-gray-500 text-sm">
         {{if .CreatedAt}}
@@ -80,39 +77,40 @@
   </div>
 </div>
 {{end}}
+
 {{define "post-reply"}}
-<div class="bg-transparentease-in-out w-full rounded rounded-lg flex flex-row-reverse p-4 gap-4 post">
-  <div class="w-auto h-10 rounded rounded-lg flex items-center justify-center text-gray-500 font-bold cursor-pointer px-3">
-    {{if .Deleteable}}
-    <img src="/static/img/trash-can.svg" alt="Delete post" class="w-full h-full object-cover" hx-post="/posts/{{.ID}}/delete" hx-confirm="Are you sure you want to delete this post?" hx-target="closest .post" hx-swap="outerHTML">
-    {{end}}
+<div id="post-{{.ID}}" class="bg-transparentease-in-out w-full rounded rounded-lg flex flex-row-reverse p-4 gap-4 post">
+  {{if .Deleteable}}
+  <div class="w-auto h-10 rounded rounded-lg flex items-center justify-center text-gray-500 font-bold cursor-pointer px-3" hx-delete="/posts/{{.ID}}/delete" hx-confirm="Are you sure you want to delete this post?" hx-target="#post-{{.ID}}" hx-swap="outerHTML">
+    <img src="/static/img/trash-can.svg" alt="Delete post" class="w-full h-full object-cover" >
   </div>
-  <div class="p-4 w-full">
-    <div class="flex items-center gap-3 mb-2">
-      <div>
-        <p class="font-semibold text-gray-500">
-        {{if .User.Username}}
-        {{.User.Username}}
-        {{else}}
-        <span class="text-gray-500 italic">Unknown user</span>
-        {{end}}
-        </p>
-        <p class="text-gray-500 text-sm">
-        {{if .CreatedAt}}
-        {{.CreatedAt.Format "Jan 2, 2006 at 3:04pm"}}
-        {{else}}
-        <span class="text-gray-500 italic">Unknown date</span>
-        {{end}}
-        </p>
+    {{end}}
+    <div class="p-4 w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div>
+          <p class="font-semibold text-gray-500">
+          {{if .User.Username}}
+          {{.User.Username}}
+          {{else}}
+          <span class="text-gray-500 italic">Unknown user</span>
+          {{end}}
+          </p>
+          <p class="text-gray-500 text-sm">
+          {{if .CreatedAt}}
+          {{.CreatedAt.Format "Jan 2, 2006 at 3:04pm"}}
+          {{else}}
+          <span class="text-gray-500 italic">Unknown date</span>
+          {{end}}
+          </p>
+        </div>
       </div>
+      <p class="text-gray-800 text-4xl mt-6">
+      {{if .Content}}
+      {{.Content}}
+      {{else}}
+      <span class="text-gray-800 italic">{{ (lorem) }}</span>
+      {{end}}
+      </p>
     </div>
-    <p class="text-gray-800 text-4xl mt-6">
-    {{if .Content}}
-    {{.Content}}
-    {{else}}
-    <span class="text-gray-800 italic">{{ (lorem) }}</span>
-    {{end}}
-    </p>
-  </div>
 </div>
 {{end}}
