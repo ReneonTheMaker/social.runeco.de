@@ -13,6 +13,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	app := web.NewApp()
+	app := web.NewApp(
+		cfg.Web.Https,
+	)
 	log.Fatal(app.FiberApp.Listen(":" + cfg.Web.Port))
 }

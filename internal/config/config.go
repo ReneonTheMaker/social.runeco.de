@@ -1,7 +1,8 @@
 package config
 
 type WebConfig struct {
-	Port string `ini:"port"`
+	Port  string `ini:"port"`
+	Https bool   `ini:"https"`
 }
 
 type Config struct {

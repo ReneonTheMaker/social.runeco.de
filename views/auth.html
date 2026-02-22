@@ -12,5 +12,8 @@
         {{template "loginform" .}}
       </div>
     </div>
+    {{if .NonCompliance}}
+    {{template "compliance-footer" .}}
+    {{end}}
   </body>
 </html>

@@ -11,12 +11,14 @@ import (
 	"github.com/gofiber/template/html/v2"
 )
 
+var AppConfigHttps bool
+
 type App struct {
 	FiberApp *fiber.App
 	Store    *store.Store
 }
 
-func NewApp() *App {
+func NewApp(https bool) *App {
 	// Template Engine golang html/template
 	engine := html.New("./views", ".html")
 
@@ -59,6 +61,8 @@ func NewApp() *App {
 
 	// Register Routes - defined in routes.go
 	RegisterRoutes(app, storeInstance)
+
+	AppConfigHttps = https
 
 	return &App{
 		FiberApp: app,

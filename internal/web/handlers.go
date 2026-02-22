@@ -34,7 +34,10 @@ func GetAuth(store *store.Store) fiber.Handler {
 			}
 		}
 		c.Set("Content-Type", "text/html")
-		return c.Render("auth", nil)
+		compliance := CheckCompliance(c)
+		return c.Render("auth", fiber.Map{
+			"NonCompliance": !compliance,
+		})
 	}
 }
 
@@ -61,6 +64,7 @@ func PostAuth(store *store.Store) fiber.Handler {
 		SetCookie(c, "session", sessionId, 24*time.Hour)
 
 		c.Set("HX-Redirect", "/feed")
+		SetComplianceCookie(c)
 		return c.SendStatus(fiber.StatusOK)
 	}
 }
