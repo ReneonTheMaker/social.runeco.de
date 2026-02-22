@@ -2,6 +2,9 @@
 #!/bin/bash
 set -e
 
+echo "Getting dependencies..."
+go mod tidy
+
 echo "Building Tailwind..."
 npx tailwindcss -i ./tailwind.css -o ./static/css/tailwind.css --minify
 

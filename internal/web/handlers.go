@@ -284,3 +284,10 @@ func DeletePost(store *store.Store) fiber.Handler {
 		return c.Status(fiber.StatusOK).SendString("")
 	}
 }
+
+func GetPolicy() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		c.Set("Content-Type", "text/html")
+		return c.Render("privacy", nil)
+	}
+}

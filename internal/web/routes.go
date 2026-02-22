@@ -17,6 +17,8 @@ func RegisterRoutes(app *fiber.App, store *store.Store) {
 	// feed routes
 	app.Get("/feed", GetFeed(store))
 
+	app.Get("/privacy", GetPolicy())
+
 	// post routes
 	app.Get("/post/:id/reply-count", GetPostNumberOfReplies(store))
 	app.Get("/post/:id", GetPost(store))
