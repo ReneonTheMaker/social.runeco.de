@@ -280,6 +280,6 @@ func DeletePost(store *store.Store) fiber.Handler {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
 
-		return c.Status(fiber.StatusOK).Render("post-deleted", nil)
+		return c.Status(fiber.StatusOK).SendString("")
 	}
 }
